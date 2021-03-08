@@ -1,15 +1,15 @@
 ﻿using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Stocks.Application.Common.Interfaces;
-using Stocks.Application.Common.Settings;
 using Stocks.Domain.Data;
+using Stocks.Infrastructure.Settings;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Stocks.Application.Common.Services
+namespace Stocks.Infrastructure.Services
 {
     public class IEXCloudService : IIEXCloudService
     {
@@ -21,7 +21,6 @@ namespace Stocks.Application.Common.Services
             _client = httpClient;
             _appSettings = appSettings.Value;
         }
-
 
         private string RequestUri(string endpoint, Dictionary<string, string> @params)
         {

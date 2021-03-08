@@ -23,7 +23,7 @@ namespace Stocks.Domain.Models
 
         public Candle(StockPrice stockPrice)
         {
-            Date = stockPrice.Date.Value.UtcDateTime;
+            Date = stockPrice.Date.UtcDateTime;
 
             Open = stockPrice.Open ?? 0;
             Close = stockPrice.Close ?? 0;

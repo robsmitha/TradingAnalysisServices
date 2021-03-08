@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Stocks.Application.Common.Settings
+namespace Stocks.Infrastructure.Settings
 {
     public class AppSettings
     {

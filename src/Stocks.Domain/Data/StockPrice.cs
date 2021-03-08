@@ -7,7 +7,7 @@ namespace Stocks.Domain.Data
         /// <summary>
         /// Formatted as YYYY-MM-DD
         /// </summary>
-        public DateTimeOffset? Date { get; set; }
+        public DateTimeOffset Date { get; set; }
         /// <summary>
         /// Adjusted data for historical dates. Split adjusted only.
         /// </summary>

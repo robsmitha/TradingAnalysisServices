@@ -1,13 +1,10 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
 using Stocks.Application.Common.Interfaces;
-using Stocks.Application.Common.Services;
-using Stocks.Domain.Data;
 using Stocks.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -45,13 +42,17 @@ namespace Stocks.Application.Commands
                     {
                         await ProcessCandleStickChart(symbol, request.Range);
                     }
+                    catch (IndexOutOfRangeException e)
+                    {
+                        _logger.LogError($"{nameof(AnalyzeSupportResistanceTrendLinesCommand)}.{nameof(IndexOutOfRangeException)}: {e.Message}");
+                    }
                     catch (ArgumentException e)
                     {
-                        _logger.LogError($"{nameof(AnalyzeSupportResistanceTrendLinesCommand)}.{nameof(Handler)}.{nameof(Handle)}.{nameof(ArgumentException)}: {e.Message}");
+                        _logger.LogError($"{nameof(AnalyzeSupportResistanceTrendLinesCommand)}.{nameof(ArgumentException)}: {e.Message}");
                     }
                     catch (Exception e)
                     {
-                        _logger.LogError($"{nameof(AnalyzeSupportResistanceTrendLinesCommand)}.{nameof(Handler)}.{nameof(Handle)}.{nameof(Exception)}: {e.Message}");
+                        _logger.LogError($"{nameof(AnalyzeSupportResistanceTrendLinesCommand)}.{nameof(Exception)}: {e.Message}");
                     }
                 }
 
@@ -65,7 +66,7 @@ namespace Stocks.Application.Commands
                     if (chart.SupportLevel.Low == chart.CloseLevel.Close)
                     {
                         //call process candle
-                        await ProcessCandleStickChart(symbol, range);
+                        await ProcessCandleStickChart(symbol, chart.Range.NextRange);
                     }
 
                     if (chart.SupportToCloseDifference == chart.ResistanceToCloseDifference)

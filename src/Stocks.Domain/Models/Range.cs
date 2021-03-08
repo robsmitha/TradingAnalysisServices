@@ -1,106 +1,102 @@
-﻿using System;
+﻿using Stocks.Domain.Extensions;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Text;
 
 namespace Stocks.Domain.Models
 {
-    //public enum Ranges
-    //{
-    //    Max = 1,
-    //    FiveYear = 2,
-    //    TwoYear = 3,
-    //    OneYear = 4,
-    //    YearToDate = 5,
-    //    SixMonth = 6,
-    //    ThreeMonth = 7,
-    //    OneMonth = 8,
-    //    OneMonthThirtyMinIntervals = 9,
-    //    FiveDay = 10,
-    //    FiveDayTenMinIntervals = 11,
-    //    Date = 12,
-    //    Dynamic = 13
-    //}
-    //public enum Intervals
-    //{
-    //    Day = 1,
-    //    TenMinute = 2,
-    //    ThirtyMinute = 3
-    //}
-    
+    public enum Ranges
+    {
+        [Description("5d")]
+        FiveDay = 1,
+        [Description("1m")]
+        OneMonth = 2,
+        [Description("3m")]
+        ThreeMonth = 3,
+        [Description("6m")]
+        SixMonth = 4,
+        [Description("1y")]
+        OneYear = 5,
+        [Description("2y")]
+        TwoYear = 6,
+        [Description("5y")]
+        FiveYear = 7,
+
+        [Description("max")]
+        Max = 8,
+        [Description("ytd")]
+        YearToDate = 9,
+        [Description("1mm")]
+        OneMonthThirtyMinIntervals = 10,
+        [Description("5dm")]
+        FiveDayTenMinIntervals = 11,
+        [Description("date")]
+        Date = 12,
+        [Description("dynamic")]
+        Dynamic = 13
+    }
+
     public class Range
     {
-        private readonly Dictionary<string, DateTime> ranges = new Dictionary<string, DateTime>{
-            { "max", DateTime.MaxValue.Date },
-            { "5y", DateTime.Now.AddYears(5).Date },
-            { "2y", DateTime.Now.AddYears(2).Date },
-            { "1y", DateTime.Now.AddYears(1).Date },
-            { "ytd", DateTime.MinValue.Date },
-            { "6m", DateTime.Now.AddMonths(5).Date },
-            { "3m", DateTime.Now.AddMonths(3).Date },
-            { "1m", DateTime.Now.AddMonths(1).Date },
-            { "5d", DateTime.Now.AddDays(5).Date },
-
-            { "1mm", DateTime.Now.AddMonths(1).Date },
-            { "5dm", DateTime.Now.AddDays(5).Date },
-
-            { "date", DateTime.MinValue.Date },
-            { "dynamic", DateTime.MinValue.Date },
-        };
-        public string RangeValue { get; set; }
-        public DateTime DateValue { get; set; }
+        public Ranges Value { get; set; }
         public Range(string range)
         {
             if (!ranges.ContainsKey(range))
             {
                 throw new ArgumentException($"Invalid range: {range}");
             }
-            DateValue = ranges[range];
-            RangeValue = range;
-            //defaults
-            //Interval = Intervals.Day;
-            //CurrentRange = Ranges.OneMonth;
 
-            //switch (range.ToLower())
-            //{
-            //    case "max":
-            //        CurrentRange = Ranges.Max;
-            //        break;
-            //    case "5y":
-            //        CurrentRange = Ranges.FiveYear;
-            //        break;
-            //    case "2y":
-            //        CurrentRange = Ranges.TwoYear;
-            //        break;
-            //    case "1y":
-            //        CurrentRange = Ranges.OneYear;
-            //        break;
-            //    case "ytd":
-            //        CurrentRange = Ranges.YearToDate;
-            //        break;
-            //    case "6m":
-            //        CurrentRange = Ranges.SixMonth;
-            //        break;
-            //    case "3m":
-            //        CurrentRange = Ranges.ThreeMonth;
-            //        break;
-            //    case "1mm":
-            //        CurrentRange = Ranges.OneMonthThirtyMinIntervals;
-            //        Interval = Intervals.ThirtyMinute;
-            //        break;
-            //    case "5d":
-            //        CurrentRange = Ranges.FiveDay;
-            //        break;
-            //    case "5dm":
-            //        CurrentRange = Ranges.FiveDayTenMinIntervals;
-            //        Interval = Intervals.TenMinute;
-            //        break;
-            //    case "date":
-            //        CurrentRange = Ranges.Date;
-            //        break;
-            //    case "dynamic":
-            //        CurrentRange = Ranges.Dynamic;
-            //        break;
-            //}
+            Value = ranges[range];
         }
+
+        private Dictionary<string, Ranges> ranges => new List<Ranges>
+        {
+            Ranges.Max,
+            Ranges.FiveYear,
+            Ranges.TwoYear,
+            Ranges.OneYear,
+            Ranges.YearToDate,
+            Ranges.SixMonth,
+            Ranges.ThreeMonth,
+            Ranges.OneMonth,
+            Ranges.FiveDay,
+            Ranges.OneMonthThirtyMinIntervals,
+            Ranges.FiveDayTenMinIntervals,
+            Ranges.Date,
+            Ranges.Dynamic
+        }.ToDictionary(r => r.GetEnumDescription(), r => r);
+
+        public string NextRange
+        {
+            get
+            {
+                var nextValue = (int)Value + 1;
+                if (!Enum.IsDefined(typeof(Ranges), nextValue))
+                {
+                    throw new IndexOutOfRangeException($"{nextValue} is not a defined range");
+                }
+
+                var validRanges = new[] {
+                    Ranges.FiveDay,
+                    Ranges.OneMonth,
+                    Ranges.ThreeMonth,
+                    Ranges.SixMonth,
+                    Ranges.OneYear,
+                    Ranges.TwoYear,
+                    Ranges.FiveYear
+                };
+
+                if (!validRanges.Contains((Ranges)nextValue))
+                {
+                    throw new IndexOutOfRangeException($"{nextValue} is not in the valid list of ranges");
+                }
+
+                var nextRange = (Ranges)nextValue;
+                return nextRange.GetEnumDescription();
+            }
+        }
+
     }
 }

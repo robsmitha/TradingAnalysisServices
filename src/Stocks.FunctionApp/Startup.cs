@@ -3,8 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Stocks.Application;
 using Stocks.Application.Common.Interfaces;
-using Stocks.Application.Common.Services;
-using Stocks.Application.Common.Settings;
+using Stocks.Infrastructure.Services;
+using Stocks.Infrastructure.Settings;
 
 [assembly: FunctionsStartup(typeof(Stocks.FunctionApp.Startup))]
 

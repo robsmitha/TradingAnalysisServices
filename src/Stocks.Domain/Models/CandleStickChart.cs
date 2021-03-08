@@ -12,11 +12,16 @@ namespace Stocks.Domain.Models
         public Range Range { get; private set; }
         public List<Candle> Candles { get; private set; }
         
-        public CandleStickChart(string symbol, string range, List<StockPrice> stocks)
+        public CandleStickChart(string symbol, string range, IEnumerable<StockPrice> stocks)
         {
             if (string.IsNullOrWhiteSpace(symbol))
             {
                 throw new ArgumentException("Symbol cannot be empty");
+            }
+
+            if (stocks == null)
+            {
+                throw new ArgumentNullException($"Stocks cannot be null for Symbol: {symbol}");
             }
 
             if (!stocks.Any())
