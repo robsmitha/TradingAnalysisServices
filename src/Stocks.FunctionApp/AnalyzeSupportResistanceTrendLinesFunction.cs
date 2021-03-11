@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using Stocks.Application.Commands;
+using Stocks.Domain.Extensions;
 
 namespace Stocks.FunctionApp
 {
@@ -24,12 +25,12 @@ namespace Stocks.FunctionApp
 
             foreach (var call in response.Calls)
             {
-                log.LogInformation($"CALL: {call.Symbol} - close: {call.CloseLevel.Close}, support level: {call.SupportLevel.Low}, resistance level: {call.ResistanceLevel.High}");
+                log.LogInformation($"CALL: {call.Symbol} - close: {call.CloseLevel.Close}, support level: {call.SupportLevel.Low}, resistance level: {call.ResistanceLevel.High}, range: {call.Range.CurrentRange.GetEnumDescription()}");
             }
 
             foreach (var put in response.Puts)
             {
-                log.LogInformation($"PUT: {put.Symbol} - close: {put.CloseLevel.Close}, support level: {put.SupportLevel.Low}, resistance level: {put.ResistanceLevel.High}");
+                log.LogInformation($"PUT: {put.Symbol} - close: {put.CloseLevel.Close}, support level: {put.SupportLevel.Low}, resistance level: {put.ResistanceLevel.High}, range: {put.Range.CurrentRange.GetEnumDescription()}");
             }
         }
     }

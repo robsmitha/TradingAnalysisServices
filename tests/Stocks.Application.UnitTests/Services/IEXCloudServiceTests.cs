@@ -14,11 +14,10 @@ namespace Stocks.Application.UnitTests
         [Fact]
         public async Task IEXCloudService_GetHistoricalPrices_CanGetHistoricalPrices()
         {
-            //TODO: Move to base test
-            var data = JsonConvert.DeserializeObject<List<StockPrice>>(
-                File.ReadAllText("TestData" + Path.DirectorySeparatorChar + "spy-5d.json"));
             var mock = new Mock<IIEXCloudService>();
-            mock.Setup(x => x.GetHistoricalPrices("spy", "5d")).Returns(Task.FromResult(data));
+            mock.Setup(x => x.GetHistoricalPrices("spy", "5d"))
+                .Returns(Task.FromResult(JsonConvert.DeserializeObject<List<StockPrice>>(
+                File.ReadAllText("TestData" + Path.DirectorySeparatorChar + "spy-5d.json"))));
             Assert.NotNull(await mock.Object.GetHistoricalPrices("spy", "5d"));
         }
     }

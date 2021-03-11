@@ -8,17 +8,12 @@ namespace Stocks.Domain.Models
 {
     public class CandleStickChart
     {
-        public string Symbol { get; private set; }
-        public Range Range { get; private set; }
+        public ChartSymbol Symbol { get; private set; }
+        public ChartRange Range { get; private set; }
         public List<Candle> Candles { get; private set; }
         
         public CandleStickChart(string symbol, string range, IEnumerable<StockPrice> stocks)
         {
-            if (string.IsNullOrWhiteSpace(symbol))
-            {
-                throw new ArgumentException("Symbol cannot be empty");
-            }
-
             if (stocks == null)
             {
                 throw new ArgumentNullException($"Stocks cannot be null for Symbol: {symbol}");
@@ -29,8 +24,8 @@ namespace Stocks.Domain.Models
                 throw new ArgumentException($"Stocks cannot be empty for Symbol: {symbol}");
             }
 
-            Symbol = symbol.ToUpper();
-            Range = new Range(range);
+            Symbol = new ChartSymbol(symbol);
+            Range = new ChartRange(range);
             Candles = stocks.Select(s => new Candle(s)).ToList();
         }
 

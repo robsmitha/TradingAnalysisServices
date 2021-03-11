@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Stocks.Application.Common.Interfaces;
 using Stocks.Domain.Data;
+using Stocks.Domain.Models;
 using Stocks.Infrastructure.Settings;
 using System.Collections.Generic;
 using System.Linq;

@@ -12,8 +12,6 @@ namespace Stocks.FunctionApp
 {
     public class Startup : FunctionsStartup
     {
-        public IConfiguration Configuration { get; }
-
         public override void Configure(IFunctionsHostBuilder builder)
         {
             builder.Services.AddApplication();

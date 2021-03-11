@@ -12,7 +12,6 @@ namespace Stocks.Application.Commands
 {
     public class AnalyzeSupportResistanceTrendLinesCommand : IRequest<AnalyzeSupportResistanceTrendLinesCommand.Response>
     {
-        //TODO: Combine Symbol/Timespan model
         public List<string> WatchList { get; set; }
         public string Range { get; set; }
         public AnalyzeSupportResistanceTrendLinesCommand(IEnumerable<string> watchList, string range = "5d")
@@ -75,18 +74,28 @@ namespace Stocks.Application.Commands
                         return;
                     }
 
+                    //reaching resistance
                     if (chart.SupportToCloseDifference > chart.ResistanceToCloseDifference)
                     {
                         if (chart.ResistanceToCloseDifference / chart.SupportToResistanceRange < .2M)
                         {
                             puts.Add(chart);
                         }
+                        else
+                        {
+                            await ProcessCandleStickChart(symbol, chart.Range.NextRange);
+                        }
                     }
                     else
                     {
+                        //falling back on support
                         if (chart.SupportToCloseDifference / chart.SupportToResistanceRange < .2M)
                         {
                             calls.Add(chart);
+                        }
+                        else
+                        {
+                            await ProcessCandleStickChart(symbol, chart.Range.NextRange);
                         }
                     }
                 }
