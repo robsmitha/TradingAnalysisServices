@@ -43,15 +43,15 @@ namespace Stocks.Application.Commands
                     }
                     catch (IndexOutOfRangeException e)
                     {
-                        _logger.LogError($"{nameof(AnalyzeSupportResistanceTrendLinesCommand)}.{nameof(IndexOutOfRangeException)}: {e.Message}");
+                        _logger.LogError($"{nameof(AnalyzeSupportResistanceTrendLinesCommand)}.{nameof(IndexOutOfRangeException)} Error while processing symbol: {symbol}", e);
                     }
                     catch (ArgumentException e)
                     {
-                        _logger.LogError($"{nameof(AnalyzeSupportResistanceTrendLinesCommand)}.{nameof(ArgumentException)}: {e.Message}");
+                        _logger.LogError($"{nameof(AnalyzeSupportResistanceTrendLinesCommand)}.{nameof(ArgumentException)}: {e.Message} Error while processing symbol: {symbol}");
                     }
                     catch (Exception e)
                     {
-                        _logger.LogError($"{nameof(AnalyzeSupportResistanceTrendLinesCommand)}.{nameof(Exception)}: {e.Message}");
+                        _logger.LogError($"{nameof(AnalyzeSupportResistanceTrendLinesCommand)}.{nameof(Exception)}: {e.Message} Error while processing symbol: {symbol}");
                     }
                 }
 

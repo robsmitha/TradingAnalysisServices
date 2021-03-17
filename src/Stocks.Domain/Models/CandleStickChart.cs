@@ -10,7 +10,7 @@ namespace Stocks.Domain.Models
     {
         public ChartSymbol Symbol { get; private set; }
         public ChartRange Range { get; private set; }
-        public List<Candle> Candles { get; private set; }
+        public List<CandleStick> Candles { get; private set; }
         
         public CandleStickChart(string symbol, string range, IEnumerable<StockPrice> stocks)
         {
@@ -26,20 +26,20 @@ namespace Stocks.Domain.Models
 
             Symbol = new ChartSymbol(symbol);
             Range = new ChartRange(range);
-            Candles = stocks.Select(s => new Candle(s)).ToList();
+            Candles = stocks.Select(s => new CandleStick(s)).ToList();
         }
 
-        public Candle ResistanceLevel => Candles
+        public CandleStick ResistanceLevel => Candles
                 .OrderByDescending(c => c.High)
                 .ThenByDescending(c => c.Date)
                 .FirstOrDefault();
 
-        public Candle SupportLevel => Candles
+        public CandleStick SupportLevel => Candles
                 .OrderBy(c => c.Low)
                 .ThenByDescending(c => c.Date)
                 .FirstOrDefault();
 
-        public Candle CloseLevel => Candles
+        public CandleStick CloseLevel => Candles
             .OrderByDescending(c => c.Date)
             .FirstOrDefault();
 
