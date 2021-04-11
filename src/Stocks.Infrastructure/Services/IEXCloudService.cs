@@ -61,5 +61,11 @@ namespace Stocks.Infrastructure.Services
                     @params: new Dictionary<string, string> { { "includeToday", "false" } });
             return stocks;
         }
+
+        public async Task<CandleStickChart> GetCandleStickChart(string symbol, string range)
+        {
+            var prices = await GetHistoricalPrices(symbol, range);
+            return new CandleStickChart(symbol, range, prices);
+        }
     }
 }

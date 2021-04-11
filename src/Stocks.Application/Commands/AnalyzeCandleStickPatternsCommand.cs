@@ -14,11 +14,16 @@ namespace Stocks.Application.Commands
 {
     public class AnalyzeCandleStickPatternsCommand : IRequest<AnalyzeCandleStickPatternsCommand.Response>
     {
-        public List<string> WatchList { get; set; }
+        public HashSet<string> WatchList { get; set; }
         public string Range { get; set; }
         public AnalyzeCandleStickPatternsCommand(IEnumerable<string> watchList, string range = "5d")
         {
-            WatchList = watchList?.ToList() ?? new List<string>();
+            if (watchList == null || !watchList.Any())
+            {
+                throw new ArgumentException($"Watchlist cannot be empty");
+            }
+
+            WatchList = watchList.ToHashSet();
             Range = range;
         }
 
@@ -60,8 +65,7 @@ namespace Stocks.Application.Commands
 
                 async Task ProcessCandleStickPatterns(string symbol, string range)
                 {
-                    var prices = await _service.GetHistoricalPrices(symbol, range);
-                    var chart = new CandleStickChart(symbol, range, prices);
+                    var chart = await _service.GetCandleStickChart(symbol, range);
                     var candles = new LinkedList<CandleStick>(chart.Candles);
                     for (var current = candles.First; current != null; current = current.Next)
                     {

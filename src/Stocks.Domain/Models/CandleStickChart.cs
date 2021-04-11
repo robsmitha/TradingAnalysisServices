@@ -29,6 +29,13 @@ namespace Stocks.Domain.Models
             Candles = stocks.Select(s => new CandleStick(s)).ToList();
         }
 
+        public CandleStick Start => Candles
+                .OrderBy(c => c.Date)
+                .FirstOrDefault();
+        public CandleStick End => Candles
+                .OrderByDescending(c => c.Date)
+                .FirstOrDefault();
+
         public CandleStick ResistanceLevel => Candles
                 .OrderByDescending(c => c.High)
                 .ThenByDescending(c => c.Date)
@@ -44,10 +51,18 @@ namespace Stocks.Domain.Models
             .FirstOrDefault();
 
         public decimal SupportToCloseDifference =>
-            Math.Abs(SupportLevel.Low - CloseLevel.Close);
+            SupportLevel.Low - CloseLevel.Close;
         public decimal ResistanceToCloseDifference =>
-            Math.Abs(ResistanceLevel.High - CloseLevel.Close);
+            ResistanceLevel.High - CloseLevel.Close;
 
         public decimal SupportToResistanceRange => ResistanceLevel.High - SupportLevel.Low;
+
+        public DateTime StartDate => Candles
+            .OrderBy(c => c.Date)
+            .FirstOrDefault()?.Date ?? DateTime.Now.AddDays(-1);
+
+        public DateTime EndDate => Candles
+            .OrderByDescending(c => c.Date)
+            .FirstOrDefault()?.Date ?? DateTime.Now;
     }
 }

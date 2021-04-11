@@ -12,11 +12,16 @@ namespace Stocks.Application.Commands
 {
     public class AnalyzeSupportResistanceTrendLinesCommand : IRequest<AnalyzeSupportResistanceTrendLinesCommand.Response>
     {
-        public List<string> WatchList { get; set; }
+        public HashSet<string> WatchList { get; set; }
         public string Range { get; set; }
         public AnalyzeSupportResistanceTrendLinesCommand(IEnumerable<string> watchList, string range = "5d")
         {
-            WatchList = watchList?.ToList() ?? new List<string>();
+            if (watchList == null || !watchList.Any())
+            {
+                throw new ArgumentException($"Watchlist cannot be empty");
+            }
+
+            WatchList = watchList.ToHashSet();
             Range = range;
         }
 
@@ -33,8 +38,8 @@ namespace Stocks.Application.Commands
 
             public async Task<Response> Handle(AnalyzeSupportResistanceTrendLinesCommand request, CancellationToken cancellationToken)
             {
-                var puts = new List<CandleStickChart>();
-                var calls = new List<CandleStickChart>();
+                var possiblePuts = new List<CandleStickChart>();
+                var possibleCalls = new List<CandleStickChart>();
                 foreach (var symbol in request.WatchList)
                 {
                     try
@@ -55,49 +60,66 @@ namespace Stocks.Application.Commands
                     }
                 }
 
-                return new Response(calls, puts);
+                return new Response(possibleCalls, possiblePuts);
 
                 async Task ProcessCandleStickChart(string symbol, string range)
                 {
-                    var prices = await _service.GetHistoricalPrices(symbol, range);
-                    var chart = new CandleStickChart(symbol, range, prices);
+                    var chart = await _service.GetCandleStickChart(symbol, range);
+                    _logger.LogInformation(@$"
+chart.CloseLevel.Close={chart.CloseLevel.Close},
+chart.SupportLevel.Low={chart.SupportLevel.Low},
+chart.ResistanceLevel.High={chart.ResistanceLevel.High},
+");
 
-                    if (chart.SupportLevel.Low == chart.CloseLevel.Close)
+                    if(chart.Start.Close < chart.End.Close)
                     {
-                        //call process candle
-                        await ProcessCandleStickChart(symbol, chart.Range.NextRange);
+                        //gone up
+                        //go look for resistance
+
                     }
 
-                    if (chart.SupportToCloseDifference == chart.ResistanceToCloseDifference)
+                    if (chart.Start.Close > chart.End.Close)
                     {
-                        //edge case: stock has not moved..
+                        //gone down
+                        //go look for support
+
+                    }
+
+                    // edge case: Close level is less than support
+                    if (chart.SupportToCloseDifference > 0)
+                    {
+                        await ProcessCandleStickChart(symbol, chart.Range.NextRange);
                         return;
                     }
 
+                    // edge case: Close level is greater than resistance
+                    if (chart.ResistanceToCloseDifference < 0)
+                    {
+                        await ProcessCandleStickChart(symbol, chart.Range.NextRange);
+                        return;
+                    }
+
+                    //todo: determine threshold
+                    var callThreshold = 2M;
+                    var putThreshold = 2M;
+
                     //reaching resistance
-                    if (chart.SupportToCloseDifference > chart.ResistanceToCloseDifference)
+                    if (Math.Abs(chart.SupportToCloseDifference) > chart.ResistanceToCloseDifference
+                        && chart.ResistanceToCloseDifference / chart.SupportToResistanceRange < callThreshold)
                     {
-                        if (chart.ResistanceToCloseDifference / chart.SupportToResistanceRange < .2M)
-                        {
-                            puts.Add(chart);
-                        }
-                        else
-                        {
-                            await ProcessCandleStickChart(symbol, chart.Range.NextRange);
-                        }
+                        possiblePuts.Add(chart);
+                        return;
                     }
-                    else
+
+                    //falling back on support
+                    if (chart.ResistanceToCloseDifference > Math.Abs(chart.SupportToCloseDifference)
+                        && Math.Abs(chart.SupportToCloseDifference) / chart.SupportToResistanceRange < putThreshold)
                     {
-                        //falling back on support
-                        if (chart.SupportToCloseDifference / chart.SupportToResistanceRange < .2M)
-                        {
-                            calls.Add(chart);
-                        }
-                        else
-                        {
-                            await ProcessCandleStickChart(symbol, chart.Range.NextRange);
-                        }
+                        possibleCalls.Add(chart);
+                        return;
                     }
+
+                    await ProcessCandleStickChart(symbol, chart.Range.NextRange);
                 }
             }
 
